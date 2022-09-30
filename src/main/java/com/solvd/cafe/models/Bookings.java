@@ -1,17 +1,16 @@
 package com.solvd.cafe.models;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Bookings {
     private int id;
-    private LocalDateTime time;
+    private java.sql.Time time;
     private int tablesId;
 
     public Bookings() {
 
     }
-    public Bookings(int id, LocalDateTime time, int tablesId) {
+    public Bookings(int id, java.sql.Time time, int tablesId) {
         this.id = id;
         this.time = time;
         this.tablesId = tablesId;
@@ -25,11 +24,11 @@ public class Bookings {
         this.id = id;
     }
 
-    public LocalDateTime getTime() {
+    public java.sql.Time getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(java.sql.Time time) {
         this.time = time;
     }
 
@@ -62,4 +61,6 @@ public class Bookings {
                 ", tablesId=" + tablesId +
                 '}';
     }
+
+
 }
