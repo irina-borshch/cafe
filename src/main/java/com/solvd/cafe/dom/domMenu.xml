@@ -1,0 +1,38 @@
+<menu>
+    <position id="15">
+        <positionName>Okroshka</positionName>
+        <servingPortion>300</servingPortion>
+        <measurementUnit>ml</measurementUnit>
+        <price>25</price>
+    </position>
+    <position id="16">
+        <positionName>Salmon steak</positionName>
+        <servingPortion>150</servingPortion>
+        <measurementUnit>g</measurementUnit>
+        <price>45</price>
+    </position>
+    <position id="17">
+        <positionName>Burger BBQ</positionName>
+        <servingPortion>350</servingPortion>
+        <measurementUnit>g</measurementUnit>
+        <price>40</price>
+    </position>
+    <position id="18">
+        <positionName>Julienne</positionName>
+        <servingPortion>250</servingPortion>
+        <measurementUnit>g</measurementUnit>
+        <price>35</price>
+    </position>
+    <position id="19">
+        <positionName>Greek salad</positionName>
+        <servingPortion>200</servingPortion>
+        <measurementUnit>g</measurementUnit>
+        <price>23</price>
+    </position>
+    <position id="20">
+        <positionName>Vegan waffle</positionName>
+        <servingPortion>275</servingPortion>
+        <measurementUnit>g</measurementUnit>
+        <price>26</price>
+    </position>
+</menu>
