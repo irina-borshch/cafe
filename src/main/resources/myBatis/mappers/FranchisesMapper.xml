@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="src.main.resources.myBatis.mappers.FranchisesMapper">
+    <resultMap id="franchises" type="com.solvd.cafe.models.Franchises">
+        <id property="id" column="franchise_id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+    <select id="getById" parameterType="int" resultMap="franchises">
+        SELECT * FROM franchises WHERE franchise_id=#{id}
+    </select>
+    <select id="getAllRecords" resultMap="franchises">
+        SELECT * FROM franchises
+    </select>
+    <insert id="create">
+        INSERT INTO franchises(name)
+        VALUES (#{name})
+    </insert>
+    <update id="update">
+        UPDATE franchises SET name=#{name} WHERE franchise_id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM franchises WHERE franchise_id=#{id}
+    </delete>
+</mapper>

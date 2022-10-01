@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="src.main.resources.myBatis.mappers.CafeAddressesMapper">
+    <resultMap id="cafeAddresses" type="com.solvd.cafe.models.CafeAddresses">
+        <id property="id" column="address_id"/>
+        <result property="streetName" column="street_name"/>
+        <result property="buildingNum" column="building_num"/>
+        <result property="city" column="city"/>
+        <result property="franchisesId" column="franchises_id"/>
+        <result property="country" column="country"/>
+    </resultMap>
+    <select id="getById" parameterType="int" resultMap="cafeAddresses">
+    SELECT * FROM cafe_addresses WHERE address_id=#{id}
+    </select>
+    <select id="getAllRecords" resultMap="cafeAddresses">
+        SELECT * FROM cafe_addresses
+    </select>
+    <insert id="create">
+        INSERT INTO cafe_addresses(street_name, building_num, city, franchises_id, country)
+        VALUES (#{streetName}, #{buildingNum}, #{city}, #{franchisesId}, #{country})
+    </insert>
+    <update id="update">
+        UPDATE cafe_addresses SET street_name=#{streetName}, building_num=#{buildingNum}, city=#{city},
+                                  franchises_id=#{franchisesId}, country=#{country}   WHERE address_id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM cafe_addresses WHERE address_id=#{id}
+    </delete>
+</mapper>

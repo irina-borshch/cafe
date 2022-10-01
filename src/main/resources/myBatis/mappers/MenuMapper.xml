@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="src.main.resources.com.solvd.cafe.models.MenuMapper">
+    <resultMap id="menu" type="com.solvd.cafe.models.Menu">
+        <id property="id" column="menu_id"/>
+        <result property="menuType" column="menu_type"/>
+    </resultMap>
+    <select id="getById" parameterType="int" resultMap="menu">
+        SELECT * FROM menu WHERE franchise_id=#{id}
+    </select>
+    <select id="getAllRecords" resultMap="menu">
+        SELECT * FROM menu
+    </select>
+    <insert id="create">
+        INSERT INTO menu(menu_type)
+        VALUES (#{menuType})
+    </insert>
+    <update id="update">
+        UPDATE menu SET menu_type=#{menuType} WHERE menu_id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM menu WHERE menu_id=#{id}
+    </delete>
+</mapper>

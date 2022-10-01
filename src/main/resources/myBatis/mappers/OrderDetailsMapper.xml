@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="src.main.resources.myBatis.mappers.OrderDetailsMapper">
+    <resultMap id="orderDetails" type="com.solvd.cafe.models.OrderDetails">
+        <id property="id" column="details_id"/>
+        <result property="menuItemsQty" column="menu_items_qty"/>
+        <result property="menuItemId" column="menu_item_id"/>
+        <result property="ordersId" column="orders_id"/>
+    </resultMap>
+    <select id="getById" parameterType="int" resultMap="orderDetails">
+        SELECT * FROM order_details WHERE details_id=#{id}
+    </select>
+    <select id="getAllRecords" resultMap="orderDetails">
+        SELECT * FROM order_details
+    </select>
+    <insert id="create">
+        INSERT INTO order_details(menu_items_qty, menu_item_id, orders_id)
+        VALUES (#{menuItemsQty}, #{menuItemId}, #{ordersId})
+    </insert>
+    <update id="update">
+        UPDATE order_details SET menu_items_qty=#{menuItemsQtye}, menu_item_id=#{menuItemId}, orders_idy=#{id}
+                             WHERE details_id=#{detailsId}
+    </update>
+    <delete id="delete">
+        DELETE FROM order_details WHERE details_id=#{id}
+    </delete>
+</mapper>
