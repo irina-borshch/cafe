@@ -1,4 +1,4 @@
-package com.solvd.cafe.dao.jdbc.mysql;
+package com.solvd.cafe.dao.jdbc.mysql.Impl;
 
 import com.solvd.cafe.connection.ConnectionUtil;
 import com.solvd.cafe.dao.ITablesDAO;
