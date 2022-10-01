@@ -1,43 +1,49 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.IBookingsDAO;
-import com.solvd.cafe.models.Bookings;
+import com.solvd.cafe.dao.IEmployeesDAO;
+import com.solvd.cafe.models.Employees;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-public class BookingsDAO implements IBookingsDAO {
-    private static final Logger logger = LogManager.getLogger(BookingsDAO.class);
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final String INSERT = "INSERT INTO bookings" +
-            "(bookings.time, " +
-            "bookings.tables_id)\n  " +
-            "VALUES (?, ?)";
-    private static final String UPDATE = "UPDATE bookings SET " +
-            "bookings.time, " +
-            "bookings.tables_id WHERE " +
-            "bookings.booking_id=?";
-    private static final String DELETE = "DELETE FROM bookings WHERE booking_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM bookings WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM bookings";
+public class EmployeesDAO implements IEmployeesDAO {
+    private static final Logger logger = LogManager.getLogger(EmployeesDAO.class);
+    private static final String INSERT = "INSERT INTO employees" +
+            "(employees.name, " +
+            "employees.last_name, " +
+            "employees.phone_num, " +
+            "employees.position, " +
+            "employees.cafes_id)\n  " +
+            "VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE employees SET " +
+            "employees.name=?, " +
+            "employees.last_name=?, " +
+            "employees.phone_num=?, " +
+            "employees.position=?, " +
+            "employees.cafes_id=? WHERE " +
+            "employees.employee_id=?";
+    private static final String DELETE = "DELETE FROM employees WHERE employee_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM employees WHERE employee_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM employees";
 
     @Override
-    public void create(Bookings object) {
+    public void create(Employees object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setTime(1, object.getTime());
-            ps.setInt(2, object.getTablesId());
+            ps.setString(1, object.getName());
+            ps.setString(2, object.getLastName());
+            ps.setString(3, object.getPhoneNum());
+            ps.setString(4, object.getPosition());
+            ps.setInt(5, object.getCafesId());
             ps.executeUpdate();
+
             int id = 0;
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
@@ -51,37 +57,29 @@ public class BookingsDAO implements IBookingsDAO {
             ConnectionUtil.close(connection);
         }
 
-
     }
 
     @Override
-    public void update(Bookings bookings) {
+    public void update(Employees update) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            try {
-                logger.info("New booking added: ");
-                String string = scanner.nextLine();
-                java.util.Date time = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(string);
-                java.sql.Date sqlTime = new java.sql.Date(time.getTime());
-                //ps.setTime(1, sqlTime);
-                ps.setDate(1, (sqlTime));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            logger.info("Updated table status to occupied: ");
-            ps.setInt(2, scanner.nextInt());
-            scanner.close();
+            ps.setString(1, update.getName());
+            ps.setString(2, update.getLastName());
+            ps.setString(3, update.getPhoneNum());
+            ps.setString(4, update.getPosition());
+            ps.setInt(5, update.getCafesId());
+            ps.setInt(6, update.getId());
             ps.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
+
     }
 
     @Override
@@ -91,7 +89,7 @@ public class BookingsDAO implements IBookingsDAO {
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(DELETE);
-            ps.setLong(1, id);
+            ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -99,10 +97,11 @@ public class BookingsDAO implements IBookingsDAO {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
+
     }
 
     @Override
-    public Bookings getById(int id) {
+    public Employees getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -112,11 +111,15 @@ public class BookingsDAO implements IBookingsDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Bookings booking = new Bookings();
-                booking.setId(rs.getInt("booking_id"));
-                booking.setTime(rs.getTime("time"));
-                booking.setTablesId(rs.getInt("tables_id"));
-                return booking;
+                Employees employee = new Employees();
+                employee.setId(rs.getInt("employee_id"));
+                employee.setName(rs.getString("name"));
+                employee.setLastName(rs.getString("last_name"));
+                employee.setPhoneNum(rs.getString("phone_num"));
+                employee.setPosition(rs.getString("position"));
+                employee.setCafesId(rs.getInt("cafes_id"));
+
+                return employee;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -128,33 +131,35 @@ public class BookingsDAO implements IBookingsDAO {
     }
 
     @Override
-    public List<Bookings> getAllRecords() {
+    public List<Employees> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<Bookings> bookings = new ArrayList<>();
+            List<Employees> employees = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Bookings booking = new Bookings();
-                booking.setId(rs.getInt("booking_id"));
-                booking.setTime(rs.getTime("time"));
-                booking.setTablesId(rs.getInt("tables_id"));
-                bookings.add(booking);
-
-                return bookings;
+                Employees employee = new Employees();
+                employee.setId(rs.getInt("employee_id"));
+                employee.setName(rs.getString("name"));
+                employee.setLastName(rs.getString("last_name"));
+                employee.setPhoneNum(rs.getString("phone_num"));
+                employee.setPosition(rs.getString("position"));
+                employee.setCafesId(rs.getInt("cafes_id"));
+                employees.add(employee);
             }
+
+            return employees;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }
-

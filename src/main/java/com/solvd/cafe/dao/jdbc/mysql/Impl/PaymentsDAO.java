@@ -1,8 +1,8 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.IDiscountsDAO;
-import com.solvd.cafe.models.Discounts;
+import com.solvd.cafe.dao.IPaymentsDAO;
+import com.solvd.cafe.models.Payments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,29 +10,32 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiscountsDAO implements IDiscountsDAO {
-    private static final Logger logger = LogManager.getLogger(DiscountsDAO.class);
-    private static final String INSERT = "INSERT INTO discounts" +
-            "(discounts.discount_type, " +
-            "cafes.discount_size)\n  " +
-            "VALUES (?, ?)";
-    private static final String UPDATE = "UPDATE discounts SET " +
-            "discounts.discount_type, " +
-            "discounts.discount_size WHERE " +
-            "discounts.discount_id=?";
-    private static final String DELETE = "DELETE FROM discounts WHERE discount_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM discounts WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM discounts";
+public class PaymentsDAO implements IPaymentsDAO {
+    private static final Logger logger = LogManager.getLogger(PaymentsDAO.class);
+    private static final String INSERT = "INSERT INTO payments" +
+            "(payments.total_price, " +
+            "payments.orders_id, " +
+            "payments.discounts_id)\n  " +
+            "VALUES (?, ?, ?)";
+    private static final String UPDATE = "UPDATE payments SET " +
+            "payments.total_price=?, " +
+            "payments.orders_id=?, " +
+            "payments.discounts_id=? WHERE " +
+            "payments.payment_id=?";
+    private static final String DELETE = "DELETE FROM payments WHERE payment_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM payments WHERE payment_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM payments";
 
     @Override
-    public void create(Discounts object) {
+    public void create(Payments object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, object.getDiscountType());
-            ps.setDouble(2, object.getDiscountSize());
+            ps.setDouble(1, object.getTotalPrice());
+            ps.setInt(2, object.getOrdersId());
+            ps.setInt(3, object.getDiscountsId());
 
             ps.executeUpdate();
 
@@ -52,15 +55,16 @@ public class DiscountsDAO implements IDiscountsDAO {
     }
 
     @Override
-    public void update(Discounts update) {
+    public void update(Payments payments) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            ps.setString(1, update.getDiscountType());
-            ps.setDouble(2, update.getDiscountSize());
-            ps.setInt(3, update.getId());
+            ps.setDouble(1, payments.getTotalPrice());
+            ps.setInt(2, payments.getOrdersId());
+            ps.setInt(3, payments.getDiscountsId());
+            ps.setInt(4, payments.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -68,6 +72,7 @@ public class DiscountsDAO implements IDiscountsDAO {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
+
     }
 
     @Override
@@ -89,7 +94,7 @@ public class DiscountsDAO implements IDiscountsDAO {
     }
 
     @Override
-    public Discounts getById(int id) {
+    public Payments getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -99,11 +104,12 @@ public class DiscountsDAO implements IDiscountsDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Discounts discount = new Discounts();
-                discount.setId(rs.getInt("discount_id"));
-                discount.setDiscountType(rs.getString("discount_type"));
-                discount.setDiscountSize(rs.getDouble("discount_size"));
-                return discount;
+                Payments payment = new Payments();
+                payment.setId(rs.getInt("payment_id"));
+                payment.setTotalPrice(rs.getDouble("total_price"));
+                payment.setOrdersId(rs.getInt("orders_id"));
+                payment.setDiscountsId(rs.getInt("discounts_id"));
+                return payment;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -115,32 +121,31 @@ public class DiscountsDAO implements IDiscountsDAO {
     }
 
     @Override
-    public List<Discounts> getAllRecords() {
+    public List<Payments> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<Discounts> discounts = new ArrayList<>();
+            List<Payments> payments = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Discounts discount = new Discounts();
-                discount.setId(rs.getInt("discount_id"));
-                discount.setDiscountType(rs.getString("discount_type"));
-                discount.setDiscountSize(rs.getDouble("discount_size"));
-                discounts.add(discount);
-
-                return discounts;
+                Payments payment = new Payments();
+                payment.setId(rs.getInt("discount_id"));
+                payment.setTotalPrice(rs.getDouble("total_price"));
+                payment.setOrdersId(rs.getInt("orders_id"));
+                payment.setDiscountsId(rs.getInt("discounts_id"));
+                payments.add(payment);
             }
-
+                return payments;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }

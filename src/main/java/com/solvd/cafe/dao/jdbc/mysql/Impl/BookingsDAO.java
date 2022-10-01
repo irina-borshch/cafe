@@ -1,45 +1,43 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.IOrderDetailsDAO;
-import com.solvd.cafe.models.OrderDetails;
+import com.solvd.cafe.dao.IBookingsDAO;
+import com.solvd.cafe.models.Bookings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
-public class OrderDetailsDAO implements IOrderDetailsDAO {
-    private static final Logger logger = LogManager.getLogger(OrderDetailsDAO.class);
-
-    private static final String INSERT = "INSERT INTO order_details" +
-            "(order_details.menu_items_qty, " +
-            "order_details.menu_item_id, " +
-            "order_details.orders_id)\n  " +
-            "VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE order_details SET " +
-            "order_details.menu_items_qty, " +
-            "order_details.menu_item_id, " +
-            "order_details.orders_id WHERE " +
-            "order_details.details_id=?";
-    private static final String DELETE = "DELETE FROM order_details WHERE details_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM order_details WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM order_details";
+public class BookingsDAO implements IBookingsDAO {
+    private static final Logger logger = LogManager.getLogger(BookingsDAO.class);
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final String INSERT = "INSERT INTO bookings" +
+            "(bookings.time, " +
+            "bookings.tables_id)\n  " +
+            "VALUES (?, ?)";
+    private static final String UPDATE = "UPDATE bookings SET " +
+            "bookings.time=?, " +
+            "bookings.tables_id=? WHERE " +
+            "bookings.booking_id=?";
+    private static final String DELETE = "DELETE FROM bookings WHERE booking_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM bookings WHERE booking_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM bookings";
 
     @Override
-    public void create(OrderDetails object) {
+    public void create(Bookings object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, object.getMenuItemsQty());
-            ps.setInt(2, object.getMenuItemId());
-            ps.setInt(3, object.getOrdersId());
-
+            ps.setTime(1, object.getTime());
+            ps.setInt(2, object.getTablesId());
             ps.executeUpdate();
-
             int id = 0;
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
@@ -53,28 +51,37 @@ public class OrderDetailsDAO implements IOrderDetailsDAO {
             ConnectionUtil.close(connection);
         }
 
+
     }
 
     @Override
-    public void update(OrderDetails update) {
+    public void update(Bookings bookings) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            ps.setInt(1, update.getMenuItemsQty());
-            ps.setInt(2, update.getMenuItemId());
-            ps.setInt(3, update.getOrdersId());
-            ps.setInt(4, update.getId());
+            try {
+                logger.info("New booking added: ");
+                String string = scanner.nextLine();
+                java.util.Date time = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(string);
+                java.sql.Date sqlTime = new java.sql.Date(time.getTime());
+                //ps.setTime(1, sqlTime);
+                ps.setDate(1, (sqlTime));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            logger.info("Updated table status to occupied: ");
+            ps.setInt(2, scanner.nextInt());
+            scanner.close();
             ps.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
-
-
     }
 
     @Override
@@ -84,7 +91,7 @@ public class OrderDetailsDAO implements IOrderDetailsDAO {
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(DELETE);
-            ps.setInt(1, id);
+            ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -92,11 +99,10 @@ public class OrderDetailsDAO implements IOrderDetailsDAO {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
-
     }
 
     @Override
-    public OrderDetails getById(int id) {
+    public Bookings getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -106,12 +112,11 @@ public class OrderDetailsDAO implements IOrderDetailsDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                OrderDetails orderDetail = new OrderDetails();
-                orderDetail.setId(rs.getInt("details_id"));
-                orderDetail.setMenuItemsQty(rs.getInt("menu_items_qty"));
-                orderDetail.setMenuItemId(rs.getInt("menu_item_id"));
-                orderDetail.setOrdersId(rs.getInt("orders_id"));
-                return orderDetail;
+                Bookings booking = new Bookings();
+                booking.setId(rs.getInt("booking_id"));
+                booking.setTime(rs.getTime("time"));
+                booking.setTablesId(rs.getInt("tables_id"));
+                return booking;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -123,33 +128,32 @@ public class OrderDetailsDAO implements IOrderDetailsDAO {
     }
 
     @Override
-    public List<OrderDetails> getAllRecords() {
+    public List<Bookings> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<OrderDetails> orderDetails = new ArrayList<>();
+            List<Bookings> bookings = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                OrderDetails orderDetail = new OrderDetails();
-                orderDetail.setId(rs.getInt("details_id"));
-                orderDetail.setMenuItemsQty(rs.getInt("menu_items_qty"));
-                orderDetail.setMenuItemId(rs.getInt("menu_item_id"));
-                orderDetail.setOrdersId(rs.getInt("orders_id"));
-                orderDetails.add(orderDetail);
-
-                return orderDetails;
+                Bookings booking = new Bookings();
+                booking.setId(rs.getInt("booking_id"));
+                booking.setTime(rs.getTime("time"));
+                booking.setTablesId(rs.getInt("tables_id"));
+                bookings.add(booking);
             }
+
+            return bookings;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }

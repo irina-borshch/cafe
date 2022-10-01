@@ -1,41 +1,37 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.IPaymentsDAO;
-import com.solvd.cafe.models.Payments;
+import com.solvd.cafe.dao.IServicesDAO;
+import com.solvd.cafe.models.Services;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
-public class PaymentsDAO implements IPaymentsDAO {
-    private static final Logger logger = LogManager.getLogger(PaymentsDAO.class);
-    private static final String INSERT = "INSERT INTO payments" +
-            "(payments.total_price, " +
-            "payments.orders_id, " +
-            "payments.discounts_id)\n  " +
-            "VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE payments SET " +
-            "payments.total_price, " +
-            "payments.orders_id, " +
-            "payments.discounts_id WHERE " +
-            "payments.payment_id=?";
-    private static final String DELETE = "DELETE FROM payments WHERE payment_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM payments WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM payments";
+public class ServicesDAO implements IServicesDAO {
+    private static final Logger logger = LogManager.getLogger(ServicesDAO.class);
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final String INSERT = "INSERT INTO services" +
+            "services.type)\n  " +
+            "VALUES (?)";
+    private static final String UPDATE = "UPDATE services SET " +
+            "services.type=? WHERE " +
+            "services.service_id=?";
+    private static final String DELETE = "DELETE FROM services WHERE service_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM services WHERE service_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM services";
 
     @Override
-    public void create(Payments object) {
+    public void create(Services object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setDouble(1, object.getTotalPrice());
-            ps.setInt(2, object.getOrdersId());
-            ps.setInt(3, object.getDiscountsId());
+            ps.setString(1, object.getType());
 
             ps.executeUpdate();
 
@@ -55,16 +51,14 @@ public class PaymentsDAO implements IPaymentsDAO {
     }
 
     @Override
-    public void update(Payments payments) {
+    public void update(Services update) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            ps.setDouble(1, payments.getTotalPrice());
-            ps.setInt(2, payments.getOrdersId());
-            ps.setInt(3, payments.getDiscountsId());
-            ps.setInt(4, payments.getId());
+            ps.setString(1, update.getType());
+            ps.setInt(2, update.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -94,7 +88,7 @@ public class PaymentsDAO implements IPaymentsDAO {
     }
 
     @Override
-    public Payments getById(int id) {
+    public Services getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -104,12 +98,10 @@ public class PaymentsDAO implements IPaymentsDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Payments payment = new Payments();
-                payment.setId(rs.getInt("payment_id"));
-                payment.setTotalPrice(rs.getDouble("total_price"));
-                payment.setOrdersId(rs.getInt("orders_id"));
-                payment.setDiscountsId(rs.getInt("discounts_id"));
-                return payment;
+                Services service = new Services();
+                service.setId(rs.getInt("service_id"));
+                service.setType(rs.getString("type"));
+                return service;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -121,33 +113,29 @@ public class PaymentsDAO implements IPaymentsDAO {
     }
 
     @Override
-    public List<Payments> getAllRecords() {
+    public List<Services> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<Payments> payments = new ArrayList<>();
+            List<Services> services = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Payments payment = new Payments();
-                payment.setId(rs.getInt("discount_id"));
-                payment.setTotalPrice(rs.getDouble("total_price"));
-                payment.setOrdersId(rs.getInt("orders_id"));
-                payment.setDiscountsId(rs.getInt("discounts_id"));
-                payments.add(payment);
-
-                return payments;
+                Services service = new Services();
+                service.setId(rs.getInt("service_id"));
+                service.setType(rs.getString("type"));
+                services.add(service);
             }
-
+                return services;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }

@@ -1,8 +1,8 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.ICafesDAO;
-import com.solvd.cafe.models.Cafes;
+import com.solvd.cafe.dao.ICafeAddressesDAO;
+import com.solvd.cafe.models.CafeAddresses;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,33 +11,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class CafesDAO implements ICafesDAO {
-    private static final Logger logger = LogManager.getLogger(CafesDAO.class);
+public class CafeAddressesDAO implements ICafeAddressesDAO {
+    private static final Logger logger = LogManager.getLogger(CafeAddressesDAO.class);
     private static final Scanner scanner = new Scanner(System.in);
-    private static final String INSERT = "INSERT INTO cafes" +
-            "(cafes.cafe_addresses_id, " +
-            "cafes.menu_id, " +
-            "cafes.cafe_name)\n  " +
-            "VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE cafes SET " +
-            "cafes.cafe_addresses_id, " +
-            "cafes.menu_id, " +
-            "cafes.cafe_name WHERE " +
-            "cafes.cafe_id=?";
-    private static final String DELETE = "DELETE FROM cafes WHERE address_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM cafes WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM cafes";
+    private static final String INSERT = "INSERT INTO cafe_addresses" +
+            "(cafe_addresses.street_name, " +
+            "cafe_addresses.building_num, " +
+            "cafe_addresses.city, " +
+            "cafe_addresses.franchises_id, " +
+            "cafe_addresses.country)\n " +
+            "VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE cafe_addresses SET " +
+            "(cafe_addresses.street_name=?, " +
+            "cafe_addresses.building_num=?, " +
+            "cafe_addresses.city=?, " +
+            "cafe_addresses.franchises_id=?, " +
+            "cafe_addresses.country=? WHERE " +
+            "cafe_addresses.address_id=?";
+    private static final String DELETE = "DELETE FROM cafe_addresses WHERE address_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM cafe_addresses WHERE address_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM cafe_addresses";
 
     @Override
-    public void create(Cafes object) {
+    public void create(CafeAddresses object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, object.getCafeAddressesId());
-            ps.setInt(2, object.getMenuId());
-            ps.setString(3, object.getCafeName());
+            ps.setString(1, object.getStreetName());
+            ps.setInt(2, object.getBuildingNum());
+            ps.setString(3, object.getCity());
+            ps.setInt(4, object.getFranchisesId());
+            ps.setString(5, object.getCountry());
 
             ps.executeUpdate();
 
@@ -58,19 +64,21 @@ public class CafesDAO implements ICafesDAO {
     }
 
     @Override
-    public void update(Cafes cafes) {
+    public void update(CafeAddresses update) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            logger.info("Added new cafe address id and menu id: ");
-            ps.setInt(1, scanner.nextInt());
+            logger.info("New street name and building number: ");
+            ps.setString(1, scanner.nextLine());
             ps.setInt(2, scanner.nextInt());
-            logger.info("Created new cafe name: ");
+            logger.info("Added new country, city and franchise id: ");
             ps.setString(3, scanner.nextLine());
-            logger.info("Generated new cafe id: ");
             ps.setInt(4, scanner.nextInt());
+            ps.setString(5, scanner.nextLine());
+            logger.info("Created new address id: ");
+            ps.setInt(6, scanner.nextInt());
             scanner.close();
             ps.executeUpdate();
 
@@ -98,10 +106,11 @@ public class CafesDAO implements ICafesDAO {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
+
     }
 
     @Override
-    public Cafes getById(int id) {
+    public CafeAddresses getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -111,12 +120,14 @@ public class CafesDAO implements ICafesDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Cafes cafe = new Cafes();
-                cafe.setId(rs.getInt("cafe_id"));
-                cafe.setCafeAddressesId(rs.getInt("cafe_addresses_id"));
-                cafe.setMenuId(rs.getInt("menu_id"));
-                cafe.setCafeName(rs.getString("cafe_name"));
-                return cafe;
+                CafeAddresses addresses = new CafeAddresses();
+                addresses.setId(rs.getInt("address_id"));
+                addresses.setStreetName(rs.getString("street_name"));
+                addresses.setBuildingNum(rs.getInt("building_num"));
+                addresses.setCity(rs.getString("city"));
+                addresses.setFranchisesId(rs.getInt("franchises_id"));
+                addresses.setCountry(rs.getString("country"));
+                return addresses;
             }
 
         } catch (SQLException e) {
@@ -129,31 +140,33 @@ public class CafesDAO implements ICafesDAO {
     }
 
     @Override
-    public List<Cafes> getAllRecords() {
+    public List<CafeAddresses> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<Cafes> cafes = new ArrayList<>();
+            List<CafeAddresses> cafeAddresses = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Cafes cafe = new Cafes();
-                cafe.setId(rs.getInt("cafe_id"));
-                cafe.setCafeAddressesId(rs.getInt("cafe_addresses_id"));
-                cafe.setMenuId(rs.getInt("menu_id"));
-                cafe.setCafeName(rs.getString("cafe_name"));
-                cafes.add(cafe);
+                CafeAddresses addresses = new CafeAddresses();
+                addresses.setId(rs.getInt("address_id"));
+                addresses.setStreetName(rs.getString("street_name"));
+                addresses.setBuildingNum(rs.getInt("building_num"));
+                addresses.setCity(rs.getString("city"));
+                addresses.setFranchisesId(rs.getInt("franchises_id"));
+                cafeAddresses.add(addresses);
             }
-            return cafes;
+            return cafeAddresses;
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }
+

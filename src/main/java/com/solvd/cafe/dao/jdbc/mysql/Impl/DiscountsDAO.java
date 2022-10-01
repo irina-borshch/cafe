@@ -1,38 +1,38 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.IOrdersDAO;
-import com.solvd.cafe.models.Orders;
+import com.solvd.cafe.dao.IDiscountsDAO;
+import com.solvd.cafe.models.Discounts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-public class OrdersDAO implements IOrdersDAO {
-    private static final Logger logger = LogManager.getLogger(OrdersDAO.class);
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final String INSERT = "INSERT INTO orders" +
-            "orders.guests_id)\n  " +
-            "VALUES (?)";
-    private static final String UPDATE = "UPDATE orders SET " +
-            "orders.guests_id WHERE " +
-            "orders.order_id=?";
-    private static final String DELETE = "DELETE FROM orders WHERE order_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM orders WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM orders";
-
+public class DiscountsDAO implements IDiscountsDAO {
+    private static final Logger logger = LogManager.getLogger(DiscountsDAO.class);
+    private static final String INSERT = "INSERT INTO discounts" +
+            "(discounts.discount_type, " +
+            "cafes.discount_size)\n  " +
+            "VALUES (?, ?)";
+    private static final String UPDATE = "UPDATE discounts SET " +
+            "discounts.discount_type=?, " +
+            "discounts.discount_size=? WHERE " +
+            "discounts.discount_id=?";
+    private static final String DELETE = "DELETE FROM discounts WHERE discount_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM discounts WHERE discount_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM discounts";
 
     @Override
-    public void create(Orders object) {
+    public void create(Discounts object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, object.getGuestsId());
+            ps.setString(1, object.getDiscountType());
+            ps.setDouble(2, object.getDiscountSize());
 
             ps.executeUpdate();
 
@@ -52,16 +52,15 @@ public class OrdersDAO implements IOrdersDAO {
     }
 
     @Override
-    public void update(Orders orders) {
+    public void update(Discounts update) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            logger.info("New order created: ");
-            ps.setInt(1, scanner.nextInt());
-            ps.setInt(2, scanner.nextInt());
-            scanner.close();
+            ps.setString(1, update.getDiscountType());
+            ps.setDouble(2, update.getDiscountSize());
+            ps.setInt(3, update.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -69,7 +68,6 @@ public class OrdersDAO implements IOrdersDAO {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
-
     }
 
     @Override
@@ -91,7 +89,7 @@ public class OrdersDAO implements IOrdersDAO {
     }
 
     @Override
-    public Orders getById(int id) {
+    public Discounts getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -101,10 +99,11 @@ public class OrdersDAO implements IOrdersDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Orders order = new Orders();
-                order.setId(rs.getInt("order_id"));
-                order.setGuestsId(rs.getInt("guests_id"));
-                return order;
+                Discounts discount = new Discounts();
+                discount.setId(rs.getInt("discount_id"));
+                discount.setDiscountType(rs.getString("discount_type"));
+                discount.setDiscountSize(rs.getDouble("discount_size"));
+                return discount;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -116,31 +115,31 @@ public class OrdersDAO implements IOrdersDAO {
     }
 
     @Override
-    public List<Orders> getAllRecords() {
+    public List<Discounts> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<Orders> orders = new ArrayList<>();
+            List<Discounts> discounts = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Orders order = new Orders();
-                order.setId(rs.getInt("order_id"));
-                order.setGuestsId(rs.getInt("guests_id"));
-                orders.add(order);
-
-                return orders;
+                Discounts discount = new Discounts();
+                discount.setId(rs.getInt("discount_id"));
+                discount.setDiscountType(rs.getString("discount_type"));
+                discount.setDiscountSize(rs.getDouble("discount_size"));
+                discounts.add(discount);
             }
 
+            return discounts;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }

@@ -22,14 +22,14 @@ public class MenuItemDAO implements IMenuItemDAO {
             "menu_item.menu_id)\n  " +
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE = "UPDATE menu_item SET " +
-            "menu_item.position_name, " +
-            "menu_item.serving_portion, " +
-            "menu_item.measurement_unit, " +
-            "menu_item.price, " +
-            "menu_item.menu_id WHERE " +
+            "menu_item.position_name=?, " +
+            "menu_item.serving_portion=?, " +
+            "menu_item.measurement_unit=?, " +
+            "menu_item.price=?, " +
+            "menu_item.menu_id=? WHERE " +
             "menu_item.item_id=?";
     private static final String DELETE = "DELETE FROM menu_item WHERE item_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM menu_item WHERE id=?";
+    private static final String GET_BY_ID = "SELECT * FROM menu_item WHERE item_id=?";
     private static final String GET_ALL_RECORDS = "SELECT * FROM menu_item";
 
     @Override
@@ -156,16 +156,15 @@ public class MenuItemDAO implements IMenuItemDAO {
                 menuItem.setPrice(rs.getDouble("price"));
                 menuItem.setMenuId(rs.getInt("menu_id"));
                 menuItems.add(menuItem);
-
-                return menuItems;
             }
 
+                return menuItems;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }

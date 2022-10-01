@@ -1,8 +1,8 @@
 package com.solvd.cafe.dao.jdbc.mysql;
 
 import com.solvd.cafe.connection.ConnectionUtil;
-import com.solvd.cafe.dao.IEmployeesDAO;
-import com.solvd.cafe.models.Employees;
+import com.solvd.cafe.dao.IOrderDetailsDAO;
+import com.solvd.cafe.models.OrderDetails;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,38 +10,34 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmployeesDAO implements IEmployeesDAO {
-    private static final Logger logger = LogManager.getLogger(EmployeesDAO.class);
-    private static final String INSERT = "INSERT INTO employees" +
-            "(employees.name, " +
-            "employees.last_name, " +
-            "employees.phone_num, " +
-            "employees.position, " +
-            "employees.cafes_id)\n  " +
-            "VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE employees SET " +
-            "employees.name, " +
-            "employees.last_name, " +
-            "employees.phone_num, " +
-            "employees.position, " +
-            "employees.cafes_id WHERE " +
-            "employees.item_id=?";
-    private static final String DELETE = "DELETE FROM employees WHERE employee_id=?";
-    private static final String GET_BY_ID = "SELECT * FROM employees WHERE id=?";
-    private static final String GET_ALL_RECORDS = "SELECT * FROM employees";
+public class OrderDetailsDAO implements IOrderDetailsDAO {
+    private static final Logger logger = LogManager.getLogger(OrderDetailsDAO.class);
+
+    private static final String INSERT = "INSERT INTO order_details" +
+            "(order_details.menu_items_qty, " +
+            "order_details.menu_item_id, " +
+            "order_details.orders_id)\n  " +
+            "VALUES (?, ?, ?)";
+    private static final String UPDATE = "UPDATE order_details SET " +
+            "order_details.menu_items_qty=?, " +
+            "order_details.menu_item_id=?, " +
+            "order_details.orders_id=? WHERE " +
+            "order_details.details_id=?";
+    private static final String DELETE = "DELETE FROM order_details WHERE details_id=?";
+    private static final String GET_BY_ID = "SELECT * FROM order_details WHERE details_id=?";
+    private static final String GET_ALL_RECORDS = "SELECT * FROM order_details";
 
     @Override
-    public void create(Employees object) {
+    public void create(OrderDetails object) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, object.getName());
-            ps.setString(2, object.getLastName());
-            ps.setString(3, object.getPhoneNum());
-            ps.setString(4, object.getPosition());
-            ps.setInt(5, object.getCafesId());
+            ps.setInt(1, object.getMenuItemsQty());
+            ps.setInt(2, object.getMenuItemId());
+            ps.setInt(3, object.getOrdersId());
+
             ps.executeUpdate();
 
             int id = 0;
@@ -60,18 +56,16 @@ public class EmployeesDAO implements IEmployeesDAO {
     }
 
     @Override
-    public void update(Employees update) {
+    public void update(OrderDetails update) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            ps.setString(1, update.getName());
-            ps.setString(2, update.getLastName());
-            ps.setString(3, update.getPhoneNum());
-            ps.setString(4, update.getPosition());
-            ps.setInt(5, update.getCafesId());
-            ps.setInt(6, update.getId());
+            ps.setInt(1, update.getMenuItemsQty());
+            ps.setInt(2, update.getMenuItemId());
+            ps.setInt(3, update.getOrdersId());
+            ps.setInt(4, update.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -79,6 +73,7 @@ public class EmployeesDAO implements IEmployeesDAO {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
         }
+
 
     }
 
@@ -101,7 +96,7 @@ public class EmployeesDAO implements IEmployeesDAO {
     }
 
     @Override
-    public Employees getById(int id) {
+    public OrderDetails getById(int id) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -111,14 +106,12 @@ public class EmployeesDAO implements IEmployeesDAO {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Employees employee = new Employees();
-                employee.setId(rs.getInt("employee_id"));
-                employee.setName(rs.getString("name"));
-                employee.setLastName(rs.getString("last_name"));
-                employee.setPhoneNum(rs.getString("phone_num"));
-                employee.setPosition(rs.getString("position"));
-                employee.setCafesId(rs.getInt("cafes_id"));
-                return employee;
+                OrderDetails orderDetail = new OrderDetails();
+                orderDetail.setId(rs.getInt("details_id"));
+                orderDetail.setMenuItemsQty(rs.getInt("menu_items_qty"));
+                orderDetail.setMenuItemId(rs.getInt("menu_item_id"));
+                orderDetail.setOrdersId(rs.getInt("orders_id"));
+                return orderDetail;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -130,35 +123,31 @@ public class EmployeesDAO implements IEmployeesDAO {
     }
 
     @Override
-    public List<Employees> getAllRecords() {
+    public List<OrderDetails> getAllRecords() {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(GET_ALL_RECORDS);
-            List<Employees> employees = new ArrayList<>();
+            List<OrderDetails> orderDetails = new ArrayList<>();
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Employees employee = new Employees();
-                employee.setId(rs.getInt("employee_id"));
-                employee.setName(rs.getString("name"));
-                employee.setLastName(rs.getString("last_name"));
-                employee.setPhoneNum(rs.getString("phone_num"));
-                employee.setPosition(rs.getString("position"));
-                employee.setCafesId(rs.getInt("cafes_id"));
-                employees.add(employee);
-
-                return employees;
+                OrderDetails orderDetail = new OrderDetails();
+                orderDetail.setId(rs.getInt("details_id"));
+                orderDetail.setMenuItemsQty(rs.getInt("menu_items_qty"));
+                orderDetail.setMenuItemId(rs.getInt("menu_item_id"));
+                orderDetail.setOrdersId(rs.getInt("orders_id"));
+                orderDetails.add(orderDetail);
             }
-
+                return orderDetails;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
+
         }
-        return null;
     }
 }
