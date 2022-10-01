@@ -1,46 +1,46 @@
 package com.solvd.cafe.dao.mybatis.Impl;
 
 import com.solvd.cafe.connection.MyBatisConnectionUtil;
-import com.solvd.cafe.dao.IMenuDAO;
-import com.solvd.cafe.models.Menu;
+import com.solvd.cafe.dao.IFranchisesDAO;
+import com.solvd.cafe.models.Franchises;
 import org.apache.ibatis.session.SqlSession;
-
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class MenuMapperDAO implements IMenuDAO {
+public class FranchisesMapperDAO implements IFranchisesDAO {
+
 
     @Override
-    public Menu getById(int id) {
+    public Franchises getById(int id) {
         SqlSession session = MyBatisConnectionUtil.getSqlSessionFactory().openSession();
-        Menu menu = session.selectOne("src.main.resources.myBatis.mappers.MenuMapper.getById", id);
+        Franchises franchises = session.selectOne("src.main.resources.myBatis.mappers.FranchisesMapper.getById", id);
         session.close();
-        return menu;
+        return franchises;
     }
 
     @Override
-    public List<Menu> getAllRecords() {
-        List<Menu> menu = new LinkedList<>();
+    public List<Franchises> getAllRecords() {
+        List<Franchises> franchises = new LinkedList<>();
         SqlSession session = MyBatisConnectionUtil.getSqlSessionFactory().openSession();
-        menu = session.selectList("src.main.resources.myBatis.mappers.MenuMapper.getAllRecords", menu);
+        franchises = session.selectList("src.main.resources.myBatis.mappers.FranchisesMapper.getAllRecords", franchises);
         session.close();
-        return menu;
+        return franchises;
     }
 
     @Override
-    public void create(Menu object) {
+    public void create(Franchises object) {
         SqlSession session = MyBatisConnectionUtil.getSqlSessionFactory().openSession();
-        session.insert("src.main.resources.myBatis.mappers.MenuMapper.create", object);
+        session.insert("src.main.resources.myBatis.mappers.FranchisesMapper.create", object);
         session.commit();
         session.close();
 
     }
 
     @Override
-    public void update(Menu menu) {
+    public void update(Franchises franchises) {
         SqlSession session = MyBatisConnectionUtil.getSqlSessionFactory().openSession();
-        session.update("src.main.resources.myBatis.mappers.MenuMapper.update", menu);
+        session.update("src.main.resources.myBatis.mappers.FranchisesMapper.update", franchises);
         session.commit();
         session.close();
 
@@ -49,9 +49,8 @@ public class MenuMapperDAO implements IMenuDAO {
     @Override
     public void delete(int id) {
         SqlSession session = MyBatisConnectionUtil.getSqlSessionFactory().openSession();
-        session.delete("src.main.resources.myBatis.mappers.MenuMapper.delete", id);
+        session.delete("src.main.resources.myBatis.mappers.FranchisesMapper.delete", id);
         session.commit();
         session.close();
-
     }
 }
