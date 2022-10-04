@@ -1,18 +1,19 @@
 package com.solvd.cafe.models;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class Bookings {
     private int id;
-    private java.sql.Time time;
+    private Timestamp timestamp;
     private int tablesId;
 
     public Bookings() {
 
     }
-    public Bookings(int id, java.sql.Time time, int tablesId) {
+    public Bookings(int id, Timestamp time, int tablesId) {
         this.id = id;
-        this.time = time;
+        this.timestamp = time;
         this.tablesId = tablesId;
     }
 
@@ -24,12 +25,12 @@ public class Bookings {
         this.id = id;
     }
 
-    public java.sql.Time getTime() {
-        return time;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
-    public void setTime(java.sql.Time time) {
-        this.time = time;
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
     public int getTablesId() {
@@ -45,19 +46,19 @@ public class Bookings {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Bookings bookings = (Bookings) o;
-        return id == bookings.id && tablesId == bookings.tablesId && time.equals(bookings.time);
+        return id == bookings.id && tablesId == bookings.tablesId && timestamp.equals(bookings.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, time, tablesId);
+        return Objects.hash(id, timestamp, tablesId);
     }
 
     @Override
     public String toString() {
         return "Bookings{" +
                 "id=" + id +
-                ", time=" + time +
+                ", time=" + timestamp +
                 ", tablesId=" + tablesId +
                 '}';
     }
