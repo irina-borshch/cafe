@@ -18,7 +18,7 @@ public class GuestsDAO implements IGuestsDAO {
             "(guests.name, " +
             "guests.last_name, " +
             "guests.bookings_id)\n  " +
-            "VALUES (?, ?, ?, ?)";
+            "VALUES (?, ?, ?)";
     private static final String UPDATE = "UPDATE guests SET " +
             "guests.name=?, " +
             "guests.last_name=?, " +
@@ -45,6 +45,7 @@ public class GuestsDAO implements IGuestsDAO {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
+            object.setId(id);
             logger.info("id: " + id + " object: " + object);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -57,21 +58,17 @@ public class GuestsDAO implements IGuestsDAO {
     }
 
     @Override
-    public void update(Guests guests) {
+    public void update(Guests update) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(UPDATE);
-            logger.info("New guest's name: ");
-            ps.setString(1, scanner.nextLine());
-            logger.info("New guest's last name: ");
-            ps.setString(2, scanner.nextLine());
-            logger.info("Guest's booking id: ");
-            ps.setInt(3, scanner.nextInt());
-            logger.info("New guest's id: ");
-            ps.setInt(4, scanner.nextInt());
-            scanner.close();
+            ps.setString(1, update.getName());
+            ps.setString(2, update.getLastName());
+            ps.setInt(3, update.getBookingsId());
+            ps.setInt(4, update.getId());
+
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

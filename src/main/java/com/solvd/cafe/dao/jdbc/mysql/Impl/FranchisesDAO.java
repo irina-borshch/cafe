@@ -40,6 +40,7 @@ public class FranchisesDAO implements IFranchisesDAO {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
+            franchises.setId(id);
             logger.info("id: " + id + " object: " + franchises);
         } catch (SQLException e) {
             logger.error(e.getMessage());

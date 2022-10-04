@@ -35,7 +35,7 @@ public class BookingsDAO implements IBookingsDAO {
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setTime(1, object.getTime());
+            ps.setTimestamp(1, object.getTimestamp());
             ps.setInt(2, object.getTablesId());
             ps.executeUpdate();
             int id = 0;
@@ -43,6 +43,7 @@ public class BookingsDAO implements IBookingsDAO {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
+            object.setId(id);
             logger.info("id: " + id + " object: " + object);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -64,12 +65,14 @@ public class BookingsDAO implements IBookingsDAO {
             try {
                 logger.info("New booking added: ");
                 String string = scanner.nextLine();
-                java.util.Date time = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(string);
-                java.sql.Date sqlTime = new java.sql.Date(time.getTime());
+               /* java.util.Date time = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(string);
+                java.sql.Date sqlTime = new java.sql.Date(time.getTime());*/
+                //Timestamp timestamp = new Timestamp();
+
                 //ps.setTime(1, sqlTime);
-                ps.setDate(1, (sqlTime));
-            } catch (ParseException e) {
-                e.printStackTrace();
+                ps.setTimestamp(1, bookings.getTimestamp());
+            } catch (SQLException e) {
+                logger.error(e.getMessage());
             }
             logger.info("Updated table status to occupied: ");
             ps.setInt(2, scanner.nextInt());
@@ -114,7 +117,7 @@ public class BookingsDAO implements IBookingsDAO {
             if (rs.next()) {
                 Bookings booking = new Bookings();
                 booking.setId(rs.getInt("booking_id"));
-                booking.setTime(rs.getTime("time"));
+                booking.setTimestamp(rs.getTimestamp("time"));
                 booking.setTablesId(rs.getInt("tables_id"));
                 return booking;
             }
@@ -141,7 +144,7 @@ public class BookingsDAO implements IBookingsDAO {
             while (rs.next()) {
                 Bookings booking = new Bookings();
                 booking.setId(rs.getInt("booking_id"));
-                booking.setTime(rs.getTime("time"));
+                booking.setTimestamp(rs.getTimestamp("time"));
                 booking.setTablesId(rs.getInt("tables_id"));
                 bookings.add(booking);
             }

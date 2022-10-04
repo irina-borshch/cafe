@@ -41,7 +41,7 @@ public class MenuDAO implements IMenuDAO {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
-
+            object.setId(id);
             logger.info("id: " + id + " object: " + object);
         } catch (SQLException e) {
             logger.error(e.getMessage());

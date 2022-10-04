@@ -51,6 +51,7 @@ public class MenuItemDAO implements IMenuItemDAO {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
+            object.setId(id);
             logger.info("id: " + id + " object: " + object);
         } catch (SQLException e) {
             throw new RuntimeException(e);

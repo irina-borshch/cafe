@@ -31,17 +31,17 @@ public class EmployeesDAO implements IEmployeesDAO {
     private static final String GET_ALL_RECORDS = "SELECT * FROM employees";
 
     @Override
-    public void create(Employees object) {
+    public void create(Employees employees) {
         Connection connection = null;
         PreparedStatement ps = null;
         try {
             connection = ConnectionUtil.getConnection();
             ps = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, object.getName());
-            ps.setString(2, object.getLastName());
-            ps.setString(3, object.getPhoneNum());
-            ps.setString(4, object.getPosition());
-            ps.setInt(5, object.getCafesId());
+            ps.setString(1, employees.getName());
+            ps.setString(2, employees.getLastName());
+            ps.setString(3, employees.getPhoneNum());
+            ps.setString(4, employees.getPosition());
+            ps.setInt(5, employees.getCafesId());
             ps.executeUpdate();
 
             int id = 0;
@@ -49,9 +49,10 @@ public class EmployeesDAO implements IEmployeesDAO {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
-            logger.info("id: " + id + " object: " + object);
+            employees.setId(id);
+            logger.info("id: " + id + " object: " + employees);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         } finally {
             ConnectionUtil.close(ps);
             ConnectionUtil.close(connection);
