@@ -4,8 +4,8 @@ public class Cafe {
     private String name;
     private String city;
     private String owner;
-    private int seatingQty;
-    private int employeesQty;
+    private int seatingQty = 0;
+    private int employeesQty = 0;
     public Cafe(){
     }
     public Cafe(String name, String city, String owner, int seatingQty, int employeesQty){
@@ -23,6 +23,7 @@ public class Cafe {
     public void setName(String name) {
         this.name = name;
     }
+
 
     public String getCity() {
         return city;
